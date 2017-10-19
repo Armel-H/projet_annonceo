@@ -53,11 +53,10 @@ foreach ($membres as $valeur) { // parcourt tous les enregistrement
    $contenu .= "<tr>"; // ligne pour chaque enregistrement
        foreach ($valeur as $indice => $valeur2) { // Parcourt toutes les infos de chaque enregistrement
                $contenu .= '<td>' . $valeur2 . '</td>';
-       
-   }
-       $contenu .= '<td><a href="?action=modification&id_annonce='. $valeur['id_annonce'] .'"><img src="../photo/edit.png"></a></td>';
-       $contenu .= '<td><a onclick="confirm(\'Etes-vous certain de vouloir supprimer cette  annonce' . $valeur['id_annonce'] . '\');" href="supprimer_annonce.php?id=' . $valeur['id_annonce'] . '"><img src="../photo/delete.png"></a></td>';
 
+   }
+       $contenu .= '<td><a href="?action=modification&id_annonce='. $valeur['id_annonce'] .'"><img src="../img/refresh.png" style="height:20px; width:20px;"></a></td>';
+       $contenu .= '<td><a onclick="confirm(\'Etes-vous certain de vouloir supprimer cette  annonce' . $valeur['id_annonce'] . '\');" href="supprimer_annonce.php?id=' . $valeur['id_annonce'] . '"><img src="../img/trash.png" style="height:20px; width:20px;"></a></td>';
    $contenu .= "</tr>";
    }
 $contenu .= '</table>';
@@ -83,7 +82,7 @@ if(isset($_GET['action']) && $_GET['action'] == 'modification') {
    $adresse = (isset($annonce_actuel)) ? $annonce_actuel['adresse'] : '';
    $cp = (isset($annonce_actuel)) ? $annonce_actuel['cp'] : '';
    }
-   
+
    $contenu .= '<h1>Modification :</h1>
 
    <form class="coucou" action="" method="post">
@@ -100,30 +99,28 @@ if(isset($_GET['action']) && $_GET['action'] == 'modification') {
        <label>description_longue :</label>
        <input type="text" name="description_longue" value=" ' . $description_longue .'" >
 
-       <label>ptix :</label>
-       <input type="number" name="ptix" value=" ' . $ptix . '" >
+       <label>prix :</label>
+       <input type="number" name="prix" value=" ' . $prix . '" >
 
        <label>photo :</label>
        <input type="text" name="photo" value=" ' . $photo . '" >
-	   
+
        <label>photo :</label>
        <input type="text" name="pays" value=" ' . $pays . '" >
-	   
+
        <labelville :</label>
        <input type="text" name=ville" value=" ' . $ville . '" >
-	   
+
        <labelcp :</label>
        <input type="text" name=cp" value=" ' . $cp . '" >
 
-      
+
        <input type="submit" value="Valider">
 
    </form>';
 }
-
-//$page = 'Gestion Boutique';
-//require('../inc/header.inc.php');
-
+$page="";
+require_once('../inc/header.inc.php')
 ?>
 
 <!-- Contenu HTML -->
@@ -134,5 +131,5 @@ if(isset($_GET['action']) && $_GET['action'] == 'modification') {
 
 
 <?php
-//require_once('../inc/footer.inc.php');
+require_once('../inc/footer.inc.php');
 ?>

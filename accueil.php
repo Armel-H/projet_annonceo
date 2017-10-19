@@ -1,84 +1,95 @@
-<!DOCTYPE html>
-<html lang="fr">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>Accueil</title>
+<?php
+require('inc/init.inc.php');
 
-    <!-- Bootstrap -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
+$resultat = $pdo -> query("SELECT DISTINCT titre FROM categorie");
+$categorie = $resultat -> fetchAll (PDO::FETCH_ASSOC);
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-    <![endif]-->
-  </head>
-  <body>
-      <nav class="navbar navbar-inverse"><!--Navbar boostrap-->
-          <div class="container-fluid">
-          <!-- Brand and toggle get grouped for better mobile display -->
-          <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="accueil.php">ANNONCEO</a>
-        </div>
-  
-    <!-- Collect the nav links, forms, and other content for toggling -->
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-          <ul class="nav navbar-nav">
-              <li class="active"><a href="utilisateur.php">Qui sommes nous<span class="sr-only">(current)</span></a></li>
-              <li><a href="#">Contact</a></li>
-              <li class="dropdown">
-         <!-- <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="caret"></span></a> -->
-         <ul class="dropdown-menu">
-                <!-- <li><a href="experience.php">Expériences</a></li>
-                <li><a href="realisation.php">Réalisations</a></li>
-                <li><a href="formation.php">Formations</a></li>
-                <li role="separator" class="divider"></li>
-                <li><a href="#">Separated link</a></li>
-                <li role="separator" class="divider"></li>
-                <li><a href="#">One more separated link</a></li> -->
-          </ul>
-                <!-- </li> -->
-          </ul>
-        <form class="navbar-form navbar-left">
-        <div class="form-group">
-          <input type="text" class="form-control" placeholder="Recherche">
-        </div>
-        <button type="submit" class="btn btn-default">Submit</button>
-      </form>
-      <ul class="nav navbar-nav navbar-right">
-        <!-- <li><a href="#">Link</a></li> -->
-        <li class="dropdown">
-          <!-- <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Options <span class="caret"></span></a> -->
-          <!-- <ul class="dropdown-menu">
-            <li><a href="#">Action</a></li>
-            <li><a href="#">Another action</a></li>
-            <li><a href="#">Something else here</a></li>
-            <li role="separator" class="divider"></li>
-            <li><a href="#">Separated link</a></li>
-          </ul> -->
-        </li>
-      </ul>
-    </div><!-- /.navbar-collapse -->
-  </div><!-- /.container-fluid -->
-  </nav>
-    <?php
-    $resultat = $pdoCV -> query("SELECT * FROM t_competences");
-    $ligne_competence = $resultat -> fetch(PDO::FETCH_ASSOC);
-    ?>
-    <h2>ACCUEIL admin</h2>
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="js/bootstrap.min.js"></script>
-  </body>
-  </html>
+// debug($categorie);
+
+if (isset($_GET['cat']) && !empty($_GET['cat']) && is_string($_GET['cat'])) {
+
+// Soit une catégorie est demandée dans l'URL...
+
+   $resultat = $pdo -> prepare("SELECT * FROM annonce WHERE categorie_id = :categorie_id");
+
+   $resultat -> bindParam(':categorie_id', $_GET['cat'], PDO::PARAM_STR);
+
+   $resultat -> execute();
+
+   if($resultat -> rowCount() == 0){ // Si la categorie retourne aucun produit, alors on change la requete :
+
+       $resultat = $pdo -> query("SELECT * FROM annonce");
+
+   }
+
+}else{
+
+// Soit il n'y a pas de catégorie dans URL (ou catégorie non valide)
+
+   $resultat = $pdo -> query("SELECT * FROM annonce");
+
+}
+
+// On sort forcément de cette condition avec $resultat qui est soit les résultats d'une requete ciblée par produit, soit tous les produits...
+
+$produits = $resultat -> fetchAll(PDO::FETCH_ASSOC);
+
+// debug($produits);
+$page = 'Boutique';
+
+require('inc/header.inc.php');
+
+?>
+
+<h1>Annonces</h1>
+
+<div class="boutique-gauche">
+
+    <ul>
+
+   <?php for($i = 0; $i < count($categorie) ; $i ++) : ?>
+
+        <li><a href="?cat=<?= $categorie[$i]['titre']?>"><?= $categorie[$i]['titre']?> </a></li>
+
+   <?php endfor; ?>
+
+
+   <!-- La boucle ci-dessus parcourt tous les résultats de la requête SELECT DISTINCT CATEGORIE FROM PRODUIT. Le résultat un tableau multidimentionnel dans lequel à chaque indice (0, 1, 2 etc...) on récpère un array, avec la catégorie à l'indice 'categorie'. Donc $categories[$i]['categorie'] nous affiche chaque catégorie. -->
+
+    </ul>
+
+</div>
+
+<div class="boutique-droite">
+
+<?php foreach($produits as $pdt) : ?>
+
+    <!-- Debut vignette produit -->
+
+    <div class="boutique-produit">
+
+        <h3><?= $pdt['titre'] ?></h3>
+
+        <a href="fiche_annonce.php?id=<?= $pdt['id_annonce']?>"><img src="<?= $pdt['photo'] ?>" height="100"/></a>
+
+        <p style="font-weight: bold; font-size: 20px;"><?= $pdt['prix']?>€</p>
+
+        <p style="height: 40px"><?= substr($pdt['description_courte'], 0, 40)?>...</p>
+
+        <a href="fiche_annonce.php?id=<?= $pdt['id_annonce']?>" style="padding:5px 15px; background: #c44057 ; color:white; text-align: center; border: 2px solid black; border-radius: 3px" >Voir la fiche</a>
+
+        <!-- href="fiche_produit.php?id=id_du_produit" -->
+
+    </div>
+
+    <!-- Fin vignette produit -->
+
+<?php endforeach; ?>
+
+</div>
+
+<?php
+
+require('inc/footer.inc.php');
+
+?>
